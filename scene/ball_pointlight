@@ -2,7 +2,7 @@ $sphere ball 0
 center -0.25  0.0  0.25
 radius  1.25
 
-#phong ball_material
+#specular ball_material
 ka   1.0  0.2  0.2
 kd   0.8  0.2  0.2
 ks   0.9  0.9  0.9
