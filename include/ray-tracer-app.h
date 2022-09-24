@@ -96,8 +96,18 @@ public:
 };
 
 
+struct PinholeCamera
+{
+  glm::vec3 eye, target, across, corner, up;
+  float fov, aspect, top, right;
+
+  PinholeCamera(glm::vec3, glm::vec3, float, float);
+};
+
+
 class Ray_Tracer_App : public Application
 {
+  PinholeCamera* cam;
   Scene_Interpreter scene;
   Terminal_Menu menu;
 protected:
