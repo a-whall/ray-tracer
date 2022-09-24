@@ -16,7 +16,7 @@ normal 0.0  1.0  0.0
 ka  1.0  1.0  0.2
 kd  1.0  1.0  0.2
 
-@pointlight lightsource
-position  10.0  10.0   5.0
-intensity  1.0   0.96  0.88
-ambient    0.05  0.05  0.05
+@point lightsource
+position    10.0  10.0   5.0
+color        1.0   0.96  0.88
+intensity  100.0
