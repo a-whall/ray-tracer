@@ -34,8 +34,8 @@ struct Camera { vec3 eye; vec3 across; vec3 corner; vec3 up; };
 // uniforms and constants
 const float pi = 3.14159;
 const int maxDepth = 5;
-const uniform float tmin = 0.05;
-const uniform float tmax = 1e20;
+const float tmin = 0.05;
+const float tmax = 1e20;
 uniform Camera cam;
 uniform int numShapes;
 uniform int numLights;
