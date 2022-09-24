@@ -117,38 +117,52 @@ Isect rayIntersectScene(Ray ray)
   return result;
 }
 
-
-LightSample lsample(PointLight light, vec3 shadingPoint)
+Light _sample(Directional light, vec3 shadingPoint)
 {
-  int l = light.addr;
-  vec3 position  = vec3(heap[l+0], heap[l+1], heap[l+2]);
-  vec3 intensity = vec3(heap[l+3], heap[l+4], heap[l+5]);
-  vec3 ambient   = vec3(heap[l+6], heap[l+7], heap[l+8]);
-  vec3 direction = position - shadingPoint;
-  return LightSample(
-    position,
-    intensity * 100.0 / pow(length(direction), 2),
-    ambient,
-    normalize(direction)
-  );
+  int i = light.i;
+  vec3 lp = vec3(1./0., 0., 0.);
+  vec3 ld = vec3(heap[i+0], heap[i+1], heap[i+2]);
+  vec3 lc = vec3(heap[i+3], heap[i+4], heap[i+5]);
+  return Light(lp, lc, normalize(ld));
 }
 
-
-LightSample lsample(SpotLight light, vec3 shadingPoint)
+Light _sample(Point light, vec3 sp)
 {
-  return LightSample(vec3(0), vec3(0), vec3(0), vec3(0));
+  int i = light.i;
+  vec3 lp = vec3(heap[i+0], heap[i+1], heap[i+2]);
+  vec3 lc = vec3(heap[i+3], heap[i+4], heap[i+5]);
+  float li = heap[i+6];
+  vec3 ld = lp - sp;
+  return Light(lp, li*lc/pow(length(ld),2), normalize(ld));
 }
 
-
-LightSample getSample(int i, vec3 shadingPoint)
+Light _sample(Spot light, vec3 sp)
 {
-  int lightType = lbuf[i].x;
-  int lightAddr = lbuf[i].y;
-  switch(lightType) {
-    case 0: return lsample(PointLight(lightAddr), shadingPoint);
-    case 1: return lsample(SpotLight(lightAddr), shadingPoint);
+  int i = light.i;
+  vec3 lp = vec3(heap[i+0], heap[i+1], heap[i+2]);
+  vec3 ld = vec3(heap[i+3], heap[i+4], heap[i+5]);
+  vec3 lc = vec3(heap[i+6], heap[i+7], heap[i+8]);
+  float li = heap[i+9];
+  float lr = heap[i+10];
+  float la = heap[i+11];
+  const float le = 50.0;
+  vec3 lightToPoint = sp - lp;
+  float cos_ld = dot(normalize(lightToPoint), normalize(ld));
+  if (cos_ld > cos(la*pi/360.))
+    lc *= li / pow(length(lightToPoint),2) * pow(cos_ld, le);
+  else
+    lc = ambient;
+  return Light(lp, lc, normalize(lightToPoint));
+}
+
+Light getLightSample(int i, vec3 shadingPoint)
+{
+  switch (lbuf[i].x) { // switch l_type: pass l_index
+    case 0: return _sample(Directional(lbuf[i].y), shadingPoint);
+    case 1: return _sample(Point(lbuf[i].y), shadingPoint);
+    case 2: return _sample(Spot(lbuf[i].y), shadingPoint);
   }
-  return LightSample(vec3(0), vec3(0), vec3(0), vec3(0));
+  return Light(vec3(0), vec3(0), vec3(0));
 }
 
 
