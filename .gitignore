@@ -8,6 +8,4 @@ ray
 
 models/
 
-obj/
-
-renders/
+obj/*
