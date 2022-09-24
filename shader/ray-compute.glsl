@@ -186,15 +186,41 @@ vec3 shading(Ray ray, Isect isect)
   return ambient * vec3(heap[m.y],heap[m.y+1],heap[m.y+2]) + color;
 }
 
+vec3 uniformSampleHemisphere(float r1, float r2)
+{
+  float sin_theta = sqrt(1. - r1*r1);
+  float phi = 2. * pi * r2;
+  return vec3(sin_theta*cos(phi), r1, sin_theta*sin(phi));
+}
 
-vec4 rayTracing(Ray ray) { // currently only checks the camera ray. no bouncing rays
-  vec3 color = vec3(0);
-  for (int i = 0; i < 1; i++) {
-    Isect isect = rayIntersectScene(ray);
-    color += (isect.t > 0) ? shading(ray, isect) : vec3(0);
+vec3 computeIndirectDiffuse(uvec2 pixel, Isect isect)
+{
+  const uint N = 100u;
+  vec3 indirectDiffuse = vec3(0);
+  vec3 nb, nt, n = isect.normal;
+  nt = abs(n.x) > abs(n.y) ? vec3(n.z,0,-n.x)/sqrt(n.x*n.x+n.z*n.z) : vec3(0,-n.z,n.y)/sqrt(n.y*n.y+n.z*n.z);
+  nb = cross(n, nt);
+  uint hitCount = 0;
+  for (uint i = 0u; i < N; i++) {
+    float r1 = random(uvec3(pixel.xy, i));
+    float r2 = random(uvec3(pixel.xy, i));
+    vec3 sRay = uniformSampleHemisphere(r1, r2);
+    vec3 sampleWorld = vec3(
+      sRay.x*nb.x + sRay.y*n.x + sRay.z*nt.x,
+      sRay.x*nb.y + sRay.y*n.y + sRay.z*nt.y,
+      sRay.x*nb.z + sRay.y*n.z + sRay.z*nt.z
+    );
+    Ray sampleRay = Ray(isect.position+sampleWorld, sampleWorld);
+    Isect tsect = castRay(sampleRay);
+    if (tsect.t > 0) {
+      ivec2 mi = mbuf[tsect.material_idx];
+      if (mi.x == 0 || mi.x == 1) {
+        indirectDiffuse += r1 * shading(sampleRay, tsect);
+        hitCount += 1;
+      }
+    }
   }
-  clamp(color, 0.0, 1.0);
-  return vec4(color, 1);
+  return indirectDiffuse / N;
 }
 
 
