@@ -124,9 +124,9 @@ void Ray_Tracer_App::save_framebuffer_as_PNG()
   for (int row = 0; row < h/2; ++row)
     std::swap_ranges(raw_image.begin()+4*w*row, raw_image.begin()+4*w*(row+1), raw_image.begin()+4*w*(h-row-1));
   SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormatFrom(raw_image.data(), w, h, 32, w*4, SDL_PIXELFORMAT_RGBA32);
-  if (!surface) console::error("error creating sdl surface: ", SDL_GetError());
+  if (!surface) console::log("Warning: failed to create SDL surface. ", SDL_GetError());
   std::string file = std::string("renders/") + console::date_time() + std::string(".png");
-  if (!IMG_SavePNG(surface, file.c_str())) console::error("error saving png: ", IMG_GetError());
+  if (IMG_SavePNG(surface, file.c_str())<0) console::log("\nWarning: failed to save png. ", IMG_GetError());
   SDL_FreeSurface(surface);
 }
 
