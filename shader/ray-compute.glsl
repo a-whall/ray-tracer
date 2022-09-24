@@ -33,12 +33,13 @@ struct Camera { vec3 eye; vec3 across; vec3 corner; vec3 up; };
 
 // uniforms and constants
 const float pi = 3.14159;
-uniform Camera camera = Camera(vec3(8.0, 5.0, 9.0), vec3(0.25, 0, 0.5), 30.0, 0.66);
-uniform int maxDepth = 5;
-uniform int numShapes = 2;
-uniform int numLights = 1;
-uniform float tmin = 0.0001;
-uniform float tmax = 1e20;
+const int maxDepth = 5;
+const uniform float tmin = 0.05;
+const uniform float tmax = 1e20;
+uniform Camera cam;
+uniform int numShapes;
+uniform int numLights;
+uniform vec3 ambient = vec3(0.1, 0.1, 0.1);
 
 
 vec3 pointAt(Ray ray, float t)
