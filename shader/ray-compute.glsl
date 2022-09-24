@@ -39,7 +39,7 @@ const uniform float tmax = 1e20;
 uniform Camera cam;
 uniform int numShapes;
 uniform int numLights;
-uniform vec3 ambient = vec3(0.1, 0.1, 0.1);
+uniform vec3 ambient = vec3(0.05, 0.05, 0.05);
 
 // jenkins one-at-a-time hash
 uint hash(uint x) {
