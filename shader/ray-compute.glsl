@@ -164,39 +164,26 @@ Light getLightSample(int i, vec3 shadingPoint)
   return Light(vec3(0), vec3(0), vec3(0));
 }
 
-
 vec3 shading(Ray ray, Isect isect)
 {
   vec3 color = vec3(0);
-  int mtype = mbuf[isect.material_idx].x;
-  int idx = mbuf[isect.material_idx].y;
-  vec3 ka = vec3(heap[idx], heap[idx+1], heap[idx+2]);
-  for (int i = 0; i < numLights; i++) {
-    LightSample light = getSample(i, isect.position);
-    vec3 ambient = light.ambient * ka;
-    vec3 pos_to_light = light.position - isect.position;
-    vec3 l = normalize(pos_to_light);
-    float dist_to_light = length(pos_to_light);
+  ivec2 m = mbuf[isect.material_idx];
+  for (int li = 0; li < numLights; li++) {
+    Light light = getLightSample(li, isect.position);
+    vec3 pointToLight = light.position - isect.position;
+    vec3 l = normalize(pointToLight);
     Ray shadowRay = Ray(isect.position, l);
-    Isect shadowIsect = rayIntersectScene(shadowRay);
-    if (shadowIsect.t > tmin && shadowIsect.t < dist_to_light) {
-      color += ambient;
+    Isect shadowIsect = castRay(shadowRay);
+    if (shadowIsect.t > tmin && shadowIsect.t < length(pointToLight))
       continue;
-    }
     vec3 n = isect.normal;
     vec3 v = ray.d;
     vec3 r = reflect(l, n);
-    vec3 kd = vec3(heap[idx+3], heap[idx+4], heap[idx+5]); // for now, don't need to worry about materials having (or not having) kd since only supports diffuse and phong
-    vec3 diffuse = kd * max(dot(n,l), 0.0);
-    vec3 specular = vec3(0);
-    if (mtype == 1) { // is a phong material (has a ks)
-      vec3 ks = vec3(heap[idx+6], heap[idx+7], heap[idx+8]);
-      float p = heap[idx+9];
-      specular = ks * pow( max(dot(r,v), 0.0), p );
-    }
-    color += ambient + light.intensity * (specular + diffuse);
+    vec3 diffuse = vec3(heap[m.y+3],heap[m.y+4],heap[m.y+5]) * max(dot(n,l), 0.0);
+    vec3 specular = (m.x == 1) ? vec3(heap[m.y+6],heap[m.y+7],heap[m.y+8]) * pow(max(dot(r,v), 0.0),heap[m.y+9]) : vec3(0);
+    color += light.color * (specular + diffuse);
   }
-  return color;
+  return ambient * vec3(heap[m.y],heap[m.y+1],heap[m.y+2]) + color;
 }
 
 
