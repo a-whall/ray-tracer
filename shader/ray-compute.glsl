@@ -224,28 +224,39 @@ vec3 computeIndirectDiffuse(uvec2 pixel, Isect isect)
 }
 
 
-void main() {
-  vec4 color = vec4(0);
-  // Create the original ray
+void main()
+{
   float x = float(gl_GlobalInvocationID.x) / 960.0;
   float y = (639.0 - float(gl_GlobalInvocationID.y)) / 640.0;
-  float top = tan(camera.fov * pi / 360.0);
-  float bottom = -top;
-  float right = camera.aspect * top;
-  float left = -right;
-  vec3 W = normalize(camera.eye - camera.target);
-  vec3 U = normalize(cross(vec3(0,1,0), W));
-  vec3 V = cross(W, U) * 2 * top;
-  vec3 across = U * 2 * right;
-  vec3 corner = camera.eye + U * left + V * bottom + W * -1.0;
-  vec3 up = V * 2 * top;
-  Ray ray = Ray(
-    camera.eye,
-    normalize((corner + across * x + up * y) - camera.eye)
-  );
-  // Cast the ray to get a pixel color
-  color = rayTracing(ray);
-  // Save the result to a HDR texture
-  imageStore(render_image, ivec2(gl_GlobalInvocationID.xy), color);
+  Ray ray[maxDepth+1];
+  ivec2 m[maxDepth+1];
+  ray[0] = Ray(cam.eye, normalize((cam.corner+cam.across*x+cam.up*y)-cam.eye));
+  vec3 pixel_color = vec3(0);
+  for (int i = 0; i < maxDepth; i++) {
+    Isect isect = castRay(ray[i]);
+    if (isect.t > 0) {
+      m[i] = mbuf[isect.material_idx].xy;
+      if (m[i].x == 0 || m[i].x == 1) {
+        if (i > 0 && m[i-1].x == 2) {
+          pixel_color += vec3(heap[m[i-1].y], heap[m[i-1].y+1], heap[m[i-1].y+2]) * shading(ray[i], isect);
+        }
+        else if (i > 0 && m[i-1].x == 3) {
+          pixel_color += vec3(heap[m[i-1].y], heap[m[i-1].y+1], heap[m[i-1].y+2]) * shading(ray[i], isect);
+        }
+        else {
+          pixel_color += shading(ray[i], isect);
+          // pixel_color += computeIndirectDiffuse(gl_GlobalInvocationID.xy, isect);
+        }
+        break;
+      }
+      if (m[i].x == 2)
+        ray[i+1] = Ray(isect.position, reflect(ray[i].d, isect.normal));
+      if (m[i].x == 3)
+        ray[i+1] = Ray(isect.position, refract(-ray[i].d, isect.normal, heap[m[i].y+3]));
+    }
+    else break;
+  }
+  pixel_color = clamp(pixel_color, 0.0, 1.0);
+  imageStore(render_image, ivec2(gl_GlobalInvocationID.xy), vec4(pixel_color,1));
 }
 #end
