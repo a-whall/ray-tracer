@@ -11,17 +11,17 @@ layout (std430, binding=2) buffer MaterialIndex { ivec2 mbuf[]; };
 layout (std430, binding=3) buffer LightIndex    { ivec2 lbuf[]; };
 
 // Geometry SubTypes
-struct Plane  { ivec2 i; }; // { heap-address, material-index }
+struct Plane  { ivec2 i; }; // { heap-index, mbuf-index }
 struct Sphere { ivec2 i; };
 
 // Material SubTypes
-struct Diffuse  { vec3 ka; vec3 kd; };
-struct Specular { vec3 ka; vec3 kd; vec3 ks; float p; };
-struct Mirror   { vec3 kr; };
-struct Glass    { vec3 kr; vec3 kt; float ior; };
+struct Diffuse    { vec3 ka; vec3 kd; };
+struct Specular   { vec3 ka; vec3 kd; vec3 ks; float p; };
+struct Reflective { vec3 kr; };
+struct Glass      { vec3 kr; vec3 kt; float ior; };
 
 // Light SubTypes
-struct Directional { int i; };
+struct Directional { int i; }; // { heap-index }
 struct Point       { int i; };
 struct Spot        { int i; };
 
