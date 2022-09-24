@@ -102,8 +102,7 @@ Isect checkIsect(Ray ray, int i, float current_tmax)
   return Isect(-1, vec3(0), vec3(0), -1);
 }
 
-
-Isect rayIntersectScene(Ray ray)
+Isect castRay(Ray ray)
 {
   float current_min_t = tmax;
   Isect result = Isect(-1, vec3(0), vec3(0), -1);
