@@ -41,12 +41,18 @@ uniform int numShapes;
 uniform int numLights;
 uniform vec3 ambient = vec3(0.1, 0.1, 0.1);
 
-
-vec3 pointAt(Ray ray, float t)
-{
-  return ray.o + (ray.d * t);
+// jenkins one-at-a-time hash
+uint hash(uint x) {
+  x += (x << 10u);
+  x ^= (x >> 6u);
+  x += (x << 3u);
+  x ^= (x >> 11u);
+  x += (x << 15u);
+  return x;
 }
-
+uint hash(uvec3 v) { return hash(v.x ^ hash(v.y) ^ hash(v.z)); }
+float randomFloatBetween0and1(uint seed) { return uintBitsToFloat((seed&0x007FFFFFu)|0x3F800000u) - 1.0; }
+float random(uvec3 v) { return randomFloatBetween0and1(hash(v)); }
 
 Isect intersect(Plane plane, Ray ray, float current_tmax)
 {
