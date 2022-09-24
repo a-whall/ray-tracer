@@ -1,0 +1,29 @@
+$sphere ball_1 0
+center   0.2  0.0  -1.0
+radius   0.75
+
+$sphere ball_2 1
+center  -1.5  0.0   0.2
+radius   0.75
+
+$plane background 2
+point   0.0  -1.25  0.0
+normal  0.0   1.0   0.0
+
+#specular phong
+ka  1.0  0.2  0.2
+kd  1.0  0.2  0.2
+ks  1.0  1.0  1.0
+p  20.0
+
+#reflective mirror
+kr  0.6  0.6  0.6
+
+#diffuse gouraud
+ka  1.0  1.0  0.2
+kd  1.0  1.0  0.2
+
+@point light_1
+position    10.0  10.0   5.0
+color        1.0   0.96  0.88
+intensity  100.0
