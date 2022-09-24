@@ -56,60 +56,48 @@ float random(uvec3 v) { return randomFloatBetween0and1(hash(v)); }
 
 Isect intersect(Plane plane, Ray ray, float current_tmax)
 {
-  int i = plane.index.x;
-  int midx = plane.index.y;
-  vec3 plane_point = vec3(heap[i], heap[i+1], heap[i+2]);
-  vec3 plane_normal = normalize(vec3(heap[i+3], heap[i+4], heap[i+5]));
-  float denom = dot(ray.d, plane_normal);
+  int i = plane.i.x;
+  vec3 p = vec3(heap[i], heap[i+1], heap[i+2]);
+  vec3 n = normalize(vec3(heap[i+3], heap[i+4], heap[i+5]));
+  float denom = dot(ray.d, n);
   if (denom != 0) {
-    float t = dot(plane_point - ray.o, plane_normal) / denom;
-    if (t > tmin && t < current_tmax) {
-      vec3 position = pointAt(ray, t);
-      return Isect(t, position, plane_normal, midx);
-    }
+    float t = dot(p-ray.o, n) / denom;
+    if (t > tmin && t < current_tmax)
+      return Isect(t, ray.o+ray.d*t, n, plane.i.y);
   }
   return Isect(-1, vec3(0), vec3(0), -1);
 }
-
 
 Isect intersect(Sphere sphere, Ray ray, float current_tmax)
 {
-  int gidx = sphere.index.x;
-  int midx = sphere.index.y;
-  vec3 center = vec3(heap[gidx], heap[gidx+1], heap[gidx+2]);
-  float radius = heap[gidx+3];
-  float solution = -1.0;
-  float B = 2 * dot(ray.o-center, ray.d);
-  float C = pow(length(ray.o-center), 2) - radius * radius;
+  int i = sphere.i.x;
+  vec3 c = vec3(heap[i], heap[i+1], heap[i+2]);
+  float r = heap[i+3];
+  float t = -1.0;
+  float B = 2 * dot(ray.o-c, ray.d);
+  float C = pow(length(ray.o-c), 2) - r * r;
   float D = pow(B,2) - 4 * C;
-  if (D < 0) // no solution
-    return Isect(-1, vec3(0), vec3(0), -1);
-  else { // find solution
-    float t1 = (-B - sqrt(D)) / 2.0;
-    if (t1 >= tmin && t1 <= current_tmax)
-      solution = t1;
+  if (D >= -tmin) { // (D < 0) => no solution
+    float sol = (-B - sqrt(D)) / 2.0;
+    if (sol >= tmin && sol <= current_tmax)
+      t = sol;
     else {
-      float t2 = (-B + sqrt(D)) / 2.0;
-      if (t2 >= tmin && t2 <= current_tmax)
-        solution = t2;
+      sol = (-B + sqrt(D)) / 2.0;
+      if (sol >= tmin && sol <= current_tmax)
+        t = sol;
     }
   }
-  if (solution != -1.0) {
-    vec3 position = pointAt(ray, solution);
-    vec3 normal = normalize(position - center);
-    return Isect(solution, position, normal, midx);
-  }
+  if (t != -1.0)
+    return Isect(t, ray.o+ray.d*t, normalize((ray.o+ray.d*t)-c), sphere.i.y);
   return Isect(-1, vec3(0), vec3(0), -1);
 }
 
-
 Isect checkIsect(Ray ray, int i, float current_tmax)
 {
-  int shapeType = gbuf[i].x;
-  ivec2 geom_data = ivec2(gbuf[i].yz); // y: heap-index | z: mbuf-index
-  switch (shapeType) {
-    case 0: return intersect(Plane(geom_data), ray, current_tmax);
-    case 1: return intersect(Sphere(geom_data), ray, current_tmax);
+  switch (gbuf[i].x) {
+    case 0: return intersect(Plane(gbuf[i].yz), ray, current_tmax);
+    case 1: return intersect(Sphere(gbuf[i].yz), ray, current_tmax);
+    case 2: break;
   }
   return Isect(-1, vec3(0), vec3(0), -1);
 }
