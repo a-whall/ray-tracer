@@ -254,15 +254,16 @@ void Scene_Interpreter::regenerate_bufs()
 
 int subtype_string_to_int(std::string s)
 {
-  return s == "plane"      ? 0
-       : s == "sphere"     ? 1
-       : s == "triangle"   ? 2
-       : s == "diffuse"    ? 0
-       : s == "phong"      ? 1
-       : s == "glass"      ? 2
-       : s == "mirror"     ? 3
-       : s == "pointlight" ? 0
-       : s == "spotlight"  ? 1
+  return s == "plane"       ? 0
+       : s == "sphere"      ? 1
+       : s == "triangle"    ? 2
+       : s == "diffuse"     ? 0
+       : s == "specular"    ? 1
+       : s == "reflective"  ? 2
+       : s == "glass"       ? 3
+       : s == "directional" ? 0
+       : s == "point"       ? 1
+       : s == "spot"        ? 2
        : -1;
 }
 
