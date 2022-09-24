@@ -11,25 +11,25 @@ layout (std430, binding=2) buffer MaterialIndex { ivec2 mbuf[]; };
 layout (std430, binding=3) buffer LightIndex    { ivec2 lbuf[]; };
 
 // Geometry SubTypes
-struct Plane  { ivec2 index; }; // { heap-address, material-index }
-struct Sphere { ivec2 index; };
+struct Plane  { ivec2 i; }; // { heap-address, material-index }
+struct Sphere { ivec2 i; };
 
 // Material SubTypes
-struct DiffuseMaterial { vec3 ka; vec3 kd; };
-struct PhongMaterial { vec3 ka; vec3 kd; vec3 ks; float p; };
-struct MirrorMaterial { vec3 kr; };
-struct GlassMaterial { vec3 kr; vec3 kt; float ior; };
+struct Diffuse  { vec3 ka; vec3 kd; };
+struct Specular { vec3 ka; vec3 kd; vec3 ks; float p; };
+struct Mirror   { vec3 kr; };
+struct Glass    { vec3 kr; vec3 kt; float ior; };
 
 // Light SubTypes
-struct DirectionalLight { int addr; };
-struct PointLight { int addr; };
-struct SpotLight { int addr; };
+struct Directional { int i; };
+struct Point       { int i; };
+struct Spot        { int i; };
 
 // Miscellaneous Types
 struct Ray { vec3 o; vec3 d; };
-struct LightSample { vec3 position; vec3 intensity; vec3 ambient; vec3 direction; };
+struct Light { vec3 position; vec3 color; vec3 direction; };
 struct Isect { float t; vec3 position; vec3 normal; int material_idx; };
-struct Camera { vec3 eye; vec3 target; float fov; float aspect; };
+struct Camera { vec3 eye; vec3 across; vec3 corner; vec3 up; };
 
 // uniforms and constants
 const float pi = 3.14159;
