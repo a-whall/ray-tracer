@@ -1,0 +1,25 @@
+$sphere ball 0
+center -0.25  0.0  0.25
+radius  1.25
+
+#specular ball_material
+ka  1.0  0.2  0.2
+kd  0.8  0.2  0.2
+ks  0.9  0.9  0.9
+p  20.0
+
+$plane background 1
+point  0.0  -1.25  0.0
+normal 0.0   1.0   0.0
+
+#diffuse background_material
+ka  1.0  1.0  0.2
+kd  1.0  1.0  0.2
+
+@spot spotlight
+position   10.0  10.0   5.0
+direction -10.0 -10.0  -5.0
+color       1.0   0.96  0.88
+intensity  100.0
+range      10.0
+angle      20.0
