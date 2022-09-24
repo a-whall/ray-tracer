@@ -131,7 +131,7 @@ void Application::on_exit() {}
 
 void callback(GLenum debug_source, GLenum, GLuint, GLenum, GLsizei, const GLchar *msg, const void *) {
   if (debug_source == GL_DEBUG_SOURCE_API)
-    console::GL_API_message_buffer << ' ' << msg;
+    console::GL_API_message_buffer << '\n' << msg;
 }
 
 
