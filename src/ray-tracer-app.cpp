@@ -56,9 +56,14 @@ void Ray_Tracer_App::on_init()
   glTextureStorage2D(render_tex, 1, GL_RGBA32F, app_data.width, app_data.height);
   glBindImageTexture(0, render_tex, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
   glBindVertexArray(render_vao);
+  cam = new PinholeCamera(glm::vec3(8.0f,5.0f,9.0f), glm::vec3(0.25f, 0.0f, 0.5f), 30.0, 0.66f);
   glUseProgram(ray_shader.handle);
   glUniform1i(ray_shader.loc("numShapes"), int(scene.geometry.size()));
   glUniform1i(ray_shader.loc("numLights"), int(scene.light.size()));
+  glUniform3f(ray_shader.loc("cam.eye"), cam->eye.x, cam->eye.y, cam->eye.z);
+  glUniform3f(ray_shader.loc("cam.across"), cam->across.x, cam->across.y, cam->across.z);
+  glUniform3f(ray_shader.loc("cam.corner"), cam->corner.x, cam->corner.y, cam->corner.z);
+  glUniform3f(ray_shader.loc("cam.up"), cam->up.x, cam->up.y, cam->up.z);
   glUseProgram(0);
   menu.build(&scene);
   console::log();
@@ -314,4 +319,20 @@ MenuID Menu_State::input(MenuInputID e)
   else if (e == back_input)
     return pid;
   return id;
+}
+
+
+PinholeCamera::PinholeCamera(glm::vec3 eye, glm::vec3 target, float fov, float aspect)
+{
+  using namespace glm;
+  this->eye = eye;
+  this->target = target;
+  top = tan(fov * .008726646f);
+  right = aspect * top;
+  vec3 W = normalize(eye - target);
+  vec3 U = normalize(cross(vec3(0,1,0), W));
+  vec3 V = 2.f * top * cross(W, U);
+  across = 2.f * right * U;
+  corner = eye - right * U - top * V - W;
+  up = 2.f * top * V;
 }
