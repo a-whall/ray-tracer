@@ -21,12 +21,9 @@ void console::print_API_messages()
 #include <ctime>
 std::string console::date_time()
 {
-  std::tm t;
-  std::time_t now = std::time(nullptr);
-  localtime_r(&now, &t);
   std::stringstream ss;
-  ss << 1+t.tm_mon << '-' << t.tm_mday << '-' << t.tm_year-100 << ' '
-    << t.tm_hour << '.' << t.tm_min << '.' << t.tm_sec;
+  std::time_t t = std::time(nullptr);
+  ss << std::put_time(std::localtime(&t), "%a-%b-%e-%y-%H%M%S");
   return ss.str();
 }
 
