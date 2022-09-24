@@ -111,7 +111,7 @@ void Ray_Tracer_App::on_exit()
   glDeleteBuffers(NUM_BUFFERS, bufferID);
   glDeleteProgram(render_shader.handle);
   glDeleteProgram(ray_shader.handle);
-  console::log();
+  console::log("\nAverage FPS: ", 1000.0f/app_data.cma_fdt);
 }
 
 #include <algorithm>
