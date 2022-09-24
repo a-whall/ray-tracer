@@ -5,10 +5,10 @@ layout (local_size_x = 1, local_size_y = 1) in;
 
 layout (RGBA32F, binding = 0) uniform image2D render_image;
 
-layout (std430, binding=0) buffer Scene_Data { float heap[]; };
-layout (std430, binding=1) buffer Geometry   { ivec4 gbuf[]; };
-layout (std430, binding=2) buffer Material   { ivec2 mbuf[]; };
-layout (std430, binding=3) buffer Light      { ivec2 lbuf[]; };
+layout (std430, binding=0) buffer SceneData     { float heap[]; };
+layout (std430, binding=1) buffer GeometryIndex { ivec4 gbuf[]; };
+layout (std430, binding=2) buffer MaterialIndex { ivec2 mbuf[]; };
+layout (std430, binding=3) buffer LightIndex    { ivec2 lbuf[]; };
 
 // Geometry SubTypes
 struct Plane  { ivec2 index; }; // { heap-address, material-index }
